@@ -1,0 +1,90 @@
+{
+    "project": {
+        "name": "DL Accelerated MCX Simulation",
+        "version": "1.0.0",
+        "description": "Deep learning accelerated Monte Carlo eXtreme simulation for transcranial photobiomodulation"
+    },
+    "paths": {
+        "data_root": "/data1/syliu/ixi_mcx_2025",
+        "model_dir": "./models",
+        "checkpoint_dir": "./checkpoints_latent_simple2full",
+        "results_dir": "./results",
+        "temp_dir": "./temp"
+    },
+    "models": {
+        "autoencoder": {
+            "name": "autoencoder_epoch273.pt",
+            "path": "./models/autoencoder_epoch273.pt",
+            "spatial_dims": 3,
+            "in_channels": 1,
+            "out_channels": 1,
+            "latent_channels": 4,
+            "num_channels": [64, 128, 256],
+            "num_res_blocks": [2, 2, 2],
+            "norm_num_groups": 32,
+            "norm_eps": 1e-6,
+            "attention_levels": [false, false, false],
+            "with_encoder_nonlocal_attn": false,
+            "with_decoder_nonlocal_attn": false,
+            "use_checkpointing": false,
+            "use_convtranspose": false,
+            "norm_float16": true,
+            "num_splits": 4,
+            "dim_split": 1
+        },
+        "rectified_flow": {
+            "name": "checkpoint.70000.pt",
+            "path": "./checkpoints_latent_simple2full/checkpoint.70000.pt",
+            "spatial_dims": 3,
+            "in_channels": 4,
+            "out_channels": 4,
+            "num_channels": [64, 128, 256, 512],
+            "attention_levels": [false, false, true, true],
+            "num_head_channels": [0, 0, 32, 32],
+            "num_res_blocks": 2,
+            "use_flash_attention": true,
+            "include_conditioning": false,
+            "cross_attention_dim": null
+        }
+    },
+    "simulation": {
+        "mcx": {
+            "simple": {
+                "nphoton": 1e6,
+                "description": "Simple mode with 1 million photons for fast execution"
+            },
+            "full": {
+                "nphoton": 1e10,
+                "description": "Full mode with 10 billion photons for high quality"
+            },
+            "dl_accelerated": {
+                "nphoton": 1e6,
+                "description": "DL accelerated mode starting with 1 million photons"
+            }
+        },
+        "default_parameters": {
+            "power": 250.0,
+            "time": 8.0,
+            "wavelength": 1064,
+            "region_name": "Fp1",
+            "src_dir_mode": "default"
+        }
+    },
+    "hardware": {
+        "cuda": {
+            "enabled": true,
+            "device_id": 0
+        },
+        "cpu": {
+            "threads": 8
+        }
+    },
+    "training": {
+        "batch_size": 4,
+        "num_samples": 4,
+        "num_train_steps": 70000,
+        "sample_temperature": 1.5,
+        "checkpoint_every": 10000,
+        "save_results_every": 5000
+    }
+}

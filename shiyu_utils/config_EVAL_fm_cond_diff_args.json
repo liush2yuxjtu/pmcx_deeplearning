@@ -1,0 +1,77 @@
+{
+    "spatial_dims": 3,
+    "channels": [
+        64,
+        128,
+        256
+    ],
+    "num_res_blocks": [
+        2,
+        2,
+        2
+    ],
+    "norm_num_groups": 32,
+    "norm_eps": 1e-05,
+    "device": "cuda",
+    "encoder": {
+        "_target_": "monai.networks.nets.autoencoderkl.Encoder",
+        "spatial_dims": "@spatial_dims",
+        "in_channels": 1,
+        "out_channels": 4,
+        "channels": "@channels",
+        "num_res_blocks": "@num_res_blocks",
+        "norm_num_groups": "@norm_num_groups",
+        "attention_levels": [
+            false,
+            false,
+            false
+        ],
+        "norm_eps": "@norm_eps"
+    },
+    "diff_unet": {
+        "_target_": "monai.networks.nets.DiffusionModelUNet",
+        "spatial_dims": "@spatial_dims",
+        "in_channels": 5,
+        "out_channels": 1,
+        "channels": "@channels",
+        "num_res_blocks": "@num_res_blocks",
+        "num_head_channels": 64,
+        "norm_num_groups": "@norm_num_groups",
+        "attention_levels": [
+            false,
+            false,
+            true
+        ],
+        "norm_eps": "@norm_eps",
+        "use_flash_attention": true
+    },
+    "noise_scheduler": {
+        "_target_": "monai.networks.schedulers.RFlowScheduler",
+        "num_train_timesteps": 1000,
+        "base_img_size_numel": 262144
+    },
+    "upscaler": {
+        "_target_": "torch.nn.Upsample",
+        "scale_factor": 4,
+        "mode": "trilinear"
+    },
+    "cond_diff_unet": {
+        "_target_": "monai.networks.nets.DiffusionModelUNet",
+        "spatial_dims": "@spatial_dims",
+        "in_channels": 4,
+        "out_channels": 4,
+        "channels": "@channels",
+        "num_res_blocks": "@num_res_blocks",
+        "num_head_channels": 64,
+        "norm_num_groups": "@norm_num_groups",
+        "attention_levels": [
+            false,
+            false,
+            true
+        ],
+        "norm_eps": "@norm_eps",
+        "use_flash_attention": true,
+        "cross_attention_dim": 16,
+        "with_conditioning": true
+    }
+}

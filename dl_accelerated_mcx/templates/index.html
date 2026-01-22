@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DL Accelerated MCX Simulation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .form-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .form-section h2 {
+            color: #555;
+            margin-top: 0;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        
+        .radio-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .radio-option input {
+            width: auto;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .progress-container {
+            margin-top: 20px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background-color: #007bff;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .status-message {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+        }
+        
+        .status-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .status-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status-error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .results-section {
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            display: none;
+        }
+        
+        .results-section h2 {
+            color: #555;
+            margin-top: 0;
+        }
+        
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .result-card {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+        }
+        
+        .result-card h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        
+        .file-upload {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+        
+        .file-upload input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        .file-upload-label {
+            display: block;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border: 1px dashed #ccc;
+            border-radius: 4px;
+            text-align: center;
+            cursor: pointer;
+        }
+        
+        .file-upload-label:hover {
+            background-color: #e9ecef;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>DL Accelerated MCX Simulation</h1>
+        
+        <!-- Configuration Section -->
+        <div class="form-section">
+            <h2>Configuration</h2>
+            
+            <!-- Simulation Mode -->
+            <div class="form-group">
+                <label>Simulation Mode:</label>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="mode-simple" name="mode" value="simple" checked>
+                        <label for="mode-simple">Simple (Fast, Lower Quality)</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="mode-full" name="mode" value="full">
+                        <label for="mode-full">Full (Slow, High Quality)</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="mode-dl" name="mode" value="dl_accelerated">
+                        <label for="mode-dl">DL Accelerated (Fast, High Quality)</label>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Data Files -->
+            <div class="form-group">
+                <label>Data Files:</label>
+                
+                <div class="file-upload">
+                    <div class="file-upload-label">
+                        <span id="data-file-name">Click to select NIfTI file (.nii.gz)</span>
+                    </div>
+                    <input type="file" id="data-file" accept=".nii.gz,.nii">
+                </div>
+                
+                <div class="file-upload" style="margin-top: 10px;">
+                    <div class="file-upload-label">
+                        <span id="subject-csv-name">Click to select EEG electrode CSV (optional)</span>
+                    </div>
+                    <input type="file" id="subject-csv" accept=".csv">
+                </div>
+                
+                <div class="file-upload" style="margin-top: 10px;">
+                    <div class="file-upload-label">
+                        <span id="seg-file-name">Click to select segmentation file (optional)</span>
+                    </div>
+                    <input type="file" id="seg-file" accept=".nii.gz,.nii">
+                </div>
+            </div>
+            
+            <!-- Parameters -->
+            <div class="form-group">
+                <label for="region-name">Region Name:</label>
+                <select id="region-name">
+                    <option value="Fp1">Fp1</option>
+                    <option value="Fpz">Fpz</option>
+                    <option value="Fp2">Fp2</option>
+                    <option value="AF3">AF3</option>
+                    <option value="AF4">AF4</option>
+                    <option value="F7">F7</option>
+                    <option value="F3">F3</option>
+                    <option value="Fz">Fz</option>
+                    <option value="F4">F4</option>
+                    <option value="F8">F8</option>
+                    <option value="FC5">FC5</option>
+                    <option value="FC1">FC1</option>
+                    <option value="FC2">FC2</option>
+                    <option value="FC6">FC6</option>
+                    <option value="T7">T7</option>
+                    <option value="C3">C3</option>
+                    <option value="Cz">Cz</option>
+                    <option value="C4">C4</option>
+                    <option value="T8">T8</option>
+                    <option value="TP9">TP9</option>
+                    <option value="CP5">CP5</option>
+                    <option value="CP1">CP1</option>
+                    <option value="CP2">CP2</option>
+                    <option value="CP6">CP6</option>
+                    <option value="TP10">TP10</option>
+                    <option value="P7">P7</option>
+                    <option value="P3">P3</option>
+                    <option value="Pz">Pz</option>
+                    <option value="P4">P4</option>
+                    <option value="P8">P8</option>
+                    <option value="PO9">PO9</option>
+                    <option value="O1">O1</option>
+                    <option value="Oz">Oz</option>
+                    <option value="O2">O2</option>
+                    <option value="PO10">PO10</option>
+                    <option value="Iz">Iz</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Source Direction Mode:</label>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="src-dir-default" name="src-dir-mode" value="default" checked>
+                        <label for="src-dir-default">Default</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="src-dir-fixed" name="src-dir-mode" value="fixed">
+                        <label for="src-dir-fixed">Fixed</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="src-dir-target" name="src-dir-mode" value="target">
+                        <label for="src-dir-target">Target</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="power">Laser Power (mW):</label>
+                <input type="number" id="power" value="250.0" min="1" max="1000" step="10">
+            </div>
+            
+            <div class="form-group">
+                <label for="time">Exposure Time (minutes):</label>
+                <input type="number" id="time" value="8.0" min="0.1" max="60" step="0.5">
+            </div>
+            
+            <!-- Output Directory -->
+            <div class="form-group">
+                <label for="output-dir">Output Directory:</label>
+                <input type="text" id="output-dir" value="./results">
+            </div>
+            
+            <!-- Run Button -->
+            <div class="button-group">
+                <button id="run-btn" class="btn-primary">Run Simulation</button>
+                <button id="reset-btn" class="btn-secondary">Reset</button>
+            </div>
+        </div>
+        
+        <!-- Progress Section -->
+        <div class="progress-container hidden" id="progress-section">
+            <h2>Progress</h2>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <div class="status-message status-info" id="status-message">
+                Initializing simulation...
+            </div>
+        </div>
+        
+        <!-- Results Section -->
+        <div class="results-section" id="results-section">
+            <h2>Results</h2>
+            <div class="status-message status-success" id="results-status">
+                Simulation completed successfully!
+            </div>
+            
+            <div class="results-grid">
+                <div class="result-card">
+                    <h3>Stage 1 Results</h3>
+                    <p><strong>Source Position:</strong> <span id="src-pos">-</span></p>
+                    <p><strong>Source Direction:</strong> <span id="src-dir">-</span></p>
+                    <p><strong>Volume Shape:</strong> <span id="vol-shape">-</span></p>
+                </div>
+                
+                <div class="result-card">
+                    <h3>Stage 2 Results</h3>
+                    <p><strong>Flux Shape:</strong> <span id="flux-shape">-</span></p>
+                    <p><strong>Photons Used:</strong> <span id="photons">-</span></p>
+                    <p><strong>Output Path:</strong> <span id="output-path">-</span></p>
+                </div>
+                
+                <div class="result-card">
+                    <h3>Configuration</h3>
+                    <p><strong>Mode:</strong> <span id="mode-result">-</span></p>
+                    <p><strong>Power:</strong> <span id="power-result">-</span> mW</p>
+                    <p><strong>Time:</strong> <span id="time-result">-</span> minutes</p>
+                    <p><strong>Region:</strong> <span id="region-result">-</span></p>
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <button id="download-results" class="btn-success">Download Results</button>
+                <button id="view-results" class="btn-primary">View Results</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // File upload handlers
+        document.getElementById('data-file').addEventListener('change', function(e) {
+            const fileName = e.target.files[0] ? e.target.files[0].name : 'Click to select NIfTI file (.nii.gz)';
+            document.getElementById('data-file-name').textContent = fileName;
+        });
+        
+        document.getElementById('subject-csv').addEventListener('change', function(e) {
+            const fileName = e.target.files[0] ? e.target.files[0].name : 'Click to select EEG electrode CSV (optional)';
+            document.getElementById('subject-csv-name').textContent = fileName;
+        });
+        
+        document.getElementById('seg-file').addEventListener('change', function(e) {
+            const fileName = e.target.files[0] ? e.target.files[0].name : 'Click to select segmentation file (optional)';
+            document.getElementById('seg-file-name').textContent = fileName;
+        });
+        
+        // Reset button handler
+        document.getElementById('reset-btn').addEventListener('click', function() {
+            // Reset form
+            document.getElementById('mode-simple').checked = true;
+            document.getElementById('src-dir-default').checked = true;
+            document.getElementById('region-name').value = 'Fp1';
+            document.getElementById('power').value = '250.0';
+            document.getElementById('time').value = '8.0';
+            document.getElementById('output-dir').value = './results';
+            
+            // Reset file inputs
+            document.getElementById('data-file').value = '';
+            document.getElementById('subject-csv').value = '';
+            document.getElementById('seg-file').value = '';
+            document.getElementById('data-file-name').textContent = 'Click to select NIfTI file (.nii.gz)';
+            document.getElementById('subject-csv-name').textContent = 'Click to select EEG electrode CSV (optional)';
+            document.getElementById('seg-file-name').textContent = 'Click to select segmentation file (optional)';
+            
+            // Hide results sections
+            document.getElementById('progress-section').classList.add('hidden');
+            document.getElementById('results-section').style.display = 'none';
+        });
+        
+        // Run button handler
+        document.getElementById('run-btn').addEventListener('click', async function() {
+            // Show progress section
+            document.getElementById('progress-section').classList.remove('hidden');
+            document.getElementById('results-section').style.display = 'none';
+            
+            // Update status
+            updateStatus('Uploading files...', 'info');
+            updateProgress(10);
+            
+            // Get form data
+            const formData = new FormData();
+            
+            // Add files
+            const dataFile = document.getElementById('data-file').files[0];
+            const subjectCsv = document.getElementById('subject-csv').files[0];
+            const segFile = document.getElementById('seg-file').files[0];
+            
+            if (dataFile) {
+                formData.append('file', dataFile);
+            }
+            
+            // Upload files
+            try {
+                const uploadResponse = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const uploadResult = await uploadResponse.json();
+                
+                if (uploadResponse.ok) {
+                    updateStatus('Files uploaded successfully', 'info');
+                    updateProgress(20);
+                } else {
+                    throw new Error(uploadResult.error || 'Upload failed');
+                }
+            } catch (error) {
+                updateStatus(`Upload error: ${error.message}`, 'error');
+                return;
+            }
+            
+            // Prepare simulation parameters
+            const config = {
+                mode: document.querySelector('input[name="mode"]:checked').value,
+                data_path: dataFile ? `/uploads/${dataFile.name}` : '',
+                subject_csv: subjectCsv ? `/uploads/${subjectCsv.name}` : '',
+                seg_path: segFile ? `/uploads/${segFile.name}` : '',
+                region_name: document.getElementById('region-name').value,
+                src_dir_mode: document.querySelector('input[name="src-dir-mode"]:checked').value,
+                power: parseFloat(document.getElementById('power').value),
+                time: parseFloat(document.getElementById('time').value),
+                output_dir: document.getElementById('output-dir').value
+            };
+            
+            // Run simulation
+            try {
+                updateStatus('Running simulation...', 'info');
+                updateProgress(30);
+                
+                const response = await fetch('/api/run_simulation', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(config)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    updateStatus('Simulation completed successfully!', 'success');
+                    updateProgress(100);
+                    
+                    // Display results
+                    displayResults(result.results);
+                } else {
+                    throw new Error(result.error || 'Simulation failed');
+                }
+            } catch (error) {
+                updateStatus(`Simulation error: ${error.message}`, 'error');
+            }
+        });
+        
+        // Update progress bar
+        function updateProgress(percent) {
+            document.getElementById('progress-fill').style.width = `${percent}%`;
+        }
+        
+        // Update status message
+        function updateStatus(message, type) {
+            const statusElement = document.getElementById('status-message');
+            statusElement.textContent = message;
+            statusElement.className = `status-message status-${type}`;
+        }
+        
+        // Display results
+        function displayResults(results) {
+            // Show results section
+            document.getElementById('results-section').style.display = 'block';
+            
+            // Fill in results data
+            if (results.stage1_output) {
+                document.getElementById('src-pos').textContent = results.stage1_output.src_pos ?
+                    `[${results.stage1_output.src_pos.join(', ')}]` : '-';
+                document.getElementById('src-dir').textContent = results.stage1_output.src_dir ?
+                    `[${results.stage1_output.src_dir.join(', ')}]` : '-';
+                document.getElementById('vol-shape').textContent = results.stage1_output.vol_shape ?
+                    `[${results.stage1_output.vol_shape.join(', ')}]` : '-';
+            }
+            
+            if (results.stage2_output) {
+                document.getElementById('flux-shape').textContent = results.stage2_output.flux_shape ?
+                    `[${results.stage2_output.flux_shape.join(', ')}]` : '-';
+                document.getElementById('photons').textContent = results.stage2_output.nphoton ?
+                    results.stage2_output.nphoton.toLocaleString() : '-';
+                document.getElementById('output-path').textContent = results.stage2_output.output_path || '-';
+            }
+            
+            // Fill in configuration data
+            document.getElementById('mode-result').textContent = 
+                document.querySelector('input[name="mode"]:checked').value;
+            document.getElementById('power-result').textContent = 
+                document.getElementById('power').value;
+            document.getElementById('time-result').textContent = 
+                document.getElementById('time').value;
+            document.getElementById('region-result').textContent = 
+                document.getElementById('region-name').value;
+        }
+        
+        // Download results handler
+        document.getElementById('download-results').addEventListener('click', function() {
+            alert('Results download functionality would be implemented here.');
+        });
+        
+        // View results handler
+        document.getElementById('view-results').addEventListener('click', function() {
+            alert('Results viewing functionality would be implemented here.');
+        });
+    </script>
+</body>
+</html>

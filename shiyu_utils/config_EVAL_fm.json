@@ -1,0 +1,69 @@
+{
+    "spatial_dims": 3,
+    "image_channel":1,
+    "latent_channel":4,
+    "dito_input_channel":5,
+    "channels": [64, 128, 256],
+    "num_res_blocks": [2, 2, 2],
+    "norm_num_groups": 32,
+    "norm_eps": 1e-05,
+    "device":"cuda",
+    "infer_roi_size":64,
+    "encoder": {
+        "_target_": "monai.networks.nets.autoencoderkl.Encoder",
+        "spatial_dims": "@spatial_dims",
+        "in_channels": "@image_channel",
+        "out_channels": "@latent_channel",
+        "channels": "@channels",
+        "num_res_blocks": "@num_res_blocks",
+        "norm_num_groups": "@norm_num_groups",
+        "attention_levels": [false, false, false],
+        "norm_eps": "@norm_eps"
+    },
+    "diff_unet": {
+        "_target_": "monai.networks.nets.DiffusionModelUNet",
+        "spatial_dims": "@spatial_dims",
+        "in_channels": "@dito_input_channel",
+        "out_channels": "@image_channel",
+        "channels": "@channels",
+        "num_res_blocks": "@num_res_blocks",
+        "norm_num_groups": "@norm_num_groups",
+        "attention_levels": [false, false, false],
+        "norm_eps": "@norm_eps"
+    },
+    "noise_scheduler": {
+        "_target_": "monai.networks.schedulers.RFlowScheduler",
+        "num_train_timesteps": 1000,
+        "base_img_size_numel": 262144
+    },
+    "upscaler": {
+        "_target_": "torch.nn.Upsample",
+        "scale_factor": 4,
+        "mode": "trilinear"
+    },
+    "inferer":{
+        "_target_": "monai.inferers.SlidingWindowInferer",
+        "roi_size": ["@infer_roi_size","@infer_roi_size","@infer_roi_size"],
+        "sw_batch_size": 4,
+        "overlap": 0.25,
+        "progress": true
+    },
+    "maisi_encoder": {
+        "_target_": "monai.apps.generation.maisi.networks.autoencoderkl_maisi.MaisiEncoder",
+        "spatial_dims": "@spatial_dims",
+        "in_channels": "@image_channel",
+        "out_channels": "@latent_channel",
+        "num_channels": "@channels",
+        "num_res_blocks": "@num_res_blocks",
+        "norm_num_groups": "@norm_num_groups",
+        "norm_eps": "@norm_eps",
+        "attention_levels": [
+            false,
+            false,
+            false
+        ],
+        "norm_float16": false,
+        "num_splits": 4,
+        "dim_split": 1
+    }
+}
