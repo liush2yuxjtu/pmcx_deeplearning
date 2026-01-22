@@ -3,4 +3,3 @@
 *.nii.gz filter=lfs diff=lfs merge=lfs -text
 checkpoints_*/* filter=lfs diff=lfs merge=lfs -text
 pmcx_temp_data/** filter=lfs diff=lfs merge=lfs -text
-*.pt filter=lfs diff=lfs merge=lfs -text
