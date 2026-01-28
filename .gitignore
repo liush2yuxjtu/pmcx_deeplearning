@@ -187,6 +187,9 @@ output_*/
 *.pth
 *.ckpt
 *.pt
+!/temp_sample/**/*.pt
+*.nii.gz
+!/temp_sample/**/*.nii.gz
 
 # If you have specific data directories to ignore, add them here
 # For example, if you have a 'data/' directory with large files:
@@ -199,6 +202,7 @@ output_*/
 
 # Ignore large dataset directories
 ixi_mcx_2025_latent/
+!/temp_sample/ixi_mcx_2025_latent/
 ixi_mcx_2025_lowres/
 pmcx_temp_data/
 
@@ -233,10 +237,17 @@ env.json
 
 # Additional temporary directories
 tmp/
-temp/
+# Exclude temp_sample from being ignored since it's for testing
+!temp_sample/
+!temp_sample/inputs/
+!temp_sample/inputs/*.pt
+!temp_sample/outputs/
+!temp_sample/outputs/*.png
+!temp_sample/outputs/*.nii.gz
 
 # Large archive files
 *.tar
+*.tar.gz
 *.gz
 *.bz2
 *.xz
@@ -294,5 +305,13 @@ dl_accelerated_mcx/final_*.sh
 # Large experiment outputs
 experiments_*/
 runs_*/
+
+# Exclude specific large directories and files for this project
+outputs_energy/
+outputs_latent/
+.trae/
+debug.md
+debug_process.md
+temp_sample/
 
 
