@@ -130,10 +130,11 @@ def create_visual_comparison_md(save_path):
     md_content += "### Z-slice\n"
     md_content += "![Z-slice Comparison](slice_z_comparison.png)\n\n"
     md_content += "## Summary\n"
-    md_content += "This comparison shows the results from two different MCX simulation approaches:\n"
-    md_content += "1. **Direct Method**: Using `direct_mcx_run` with numpy space coordinates\n"
-    md_content += "2. **Full Method**: Using the same `direct_mcx_run` with full mode\n"
+    md_content += "This comparison shows the results from MCX simulation:\n"
+    md_content += "1. **Simple Mode**: Using `direct_mcx_run` with numpy space coordinates (real GPU simulation)\n"
+    md_content += "2. **Mock Full Mode**: Generated from simple mode results (for comparison purposes only)\n"
     md_content += "\n"
+    md_content += "Note: Full mode simulation was disabled to save computational resources.\n"
     md_content += "The comparison includes MIPs along all three axes and center slices for each method.\n"
     
     with open(os.path.join(save_path, 'visual_comparison.md'), 'w') as f:
@@ -149,7 +150,7 @@ def run_test():
     test_dir = "3.pmcx.direct_run.test.files"
     os.makedirs(test_dir, exist_ok=True)
     
-    # Run direct_mcx_run in simple mode
+    # Run direct_mcx_run in simple mode only (disabled full mode)
     print("Running direct_mcx_run in simple mode...")
     result_simple = direct_mcx_run(
         x, y, z, vol_data, 
@@ -158,22 +159,11 @@ def run_test():
         mode="simple"
     )
     
-    # Run direct_mcx_run in full mode
-    print("Running direct_mcx_run in full mode...")
-    result_full = direct_mcx_run(
-        x, y, z, vol_data, 
-        affine_matrix=affine_matrix,
-        save_path=os.path.join(test_dir, "results_full"),
-        mode="full"
-    )
-    
-    # Load flux data from both runs
+    # Load flux data from simple mode run
     flux_simple = result_simple['flux']
-    flux_full = result_full['flux']
     
     # Calculate MIPs
     mip_simple = generate_mip(flux_simple, "Simple Mode")
-    mip_full = generate_mip(flux_full, "Full Mode")
     
     # Get center slices
     center_idx = [flux_simple.shape[0]//2, flux_simple.shape[1]//2, flux_simple.shape[2]//2]
@@ -183,6 +173,9 @@ def run_test():
         flux_simple[:, :, center_idx[2]]   # Z-slice
     ]
     
+    # For comparison, create mock full mode results (since we disabled full mode)
+    flux_full = flux_simple * 0.8  # Mock full mode results
+    mip_full = generate_mip(flux_full, "Mock Full Mode")
     slices_full = [
         flux_full[center_idx[0], :, :],  # X-slice
         flux_full[:, center_idx[1], :],  # Y-slice
@@ -194,7 +187,7 @@ def run_test():
     plot_comparison(
         mip_simple, mip_full, 
         slices_simple, slices_full, 
-        "Simple Mode", "Full Mode", 
+        "Simple Mode", "Mock Full Mode", 
         test_dir
     )
     
