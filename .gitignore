@@ -312,7 +312,6 @@ outputs_latent/
 .trae/
 debug.md
 debug_process.md
-temp_sample/
 models/
 
 
