@@ -313,5 +313,6 @@ outputs_latent/
 debug.md
 debug_process.md
 temp_sample/
+models/
 
 
